@@ -28,6 +28,12 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+// 此处需在引入 Vue 之后引入
+
+require('./components/SelectDistrict'); // 选择省市区组件
+require('./components/UserAddressesCreateAndEdit'); // 获取上面省市区选择的数据
+
+
 const app = new Vue({
     el: '#app',
 });
