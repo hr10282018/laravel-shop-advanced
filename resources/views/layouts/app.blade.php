@@ -27,5 +27,6 @@
 
     <!-- JS 脚本 -->
     <script src="{{ mix('js/app.js') }}"></script>
+    @yield('scriptsAfterJs')  <!-- 弹出框ui -->
 </body>
 </html>

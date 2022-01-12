@@ -24,8 +24,7 @@ class UserAddressesController extends Controller
   {
     return view('user_addresses.create_and_edit', ['address' => new UserAddress()]);
   }
-
-  // 处理提交的数据
+  // 处理新建收货地址提交的数据
   public function store(UserAddressRequest $request)
   {
     // 获取当前用户->与地址的关联关系->在关联关系里创建一个新的记录
@@ -40,5 +39,42 @@ class UserAddressesController extends Controller
     ]));
 
     return redirect()->route('user_addresses.index');
+  }
+
+  // 修改收货地址信息
+  public function edit(UserAddress $user_address) // 此处user_address对应路由的{user_address},需要一致
+  {
+    /*
+      授权代码：
+      authorize方法会获取第二个参数 $user_address 的类名(App\Models\UserAddress)，
+      则对应App\Policies\UserAddressPolicy,之后实例化该类,调用own方法，来判断权限。
+    */
+    $this->authorize('own', $user_address); // 授权
+
+    return view('user_addresses.create_and_edit', ['address' => $user_address]);
+  }
+  // 处理修改收货地址
+  public function update(UserAddress $user_address, UserAddressRequest $request)
+  {
+    $user_address->update($request->only([
+      'province',
+      'city',
+      'district',
+      'address',
+      'zip',
+      'contact_name',
+      'contact_phone',
+    ]));
+
+    return redirect()->route('user_addresses.index');
+  }
+
+  // 删除收货地址信息
+  public function destroy(UserAddress $user_address)
+  {
+    $user_address->delete();
+
+    //return redirect()->route('user_addresses.index');
+    return [];
   }
 }

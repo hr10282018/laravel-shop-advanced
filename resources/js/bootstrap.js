@@ -1,5 +1,7 @@
 window._ = require('lodash');
 
+require('sweetalert');    // 弹出框ui
+
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
  * for JavaScript based Bootstrap features such as modals and tabs. This

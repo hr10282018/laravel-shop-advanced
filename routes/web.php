@@ -20,6 +20,15 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
 
   // 用户-处理收货表单
   Route::post('user_addresses', 'UserAddressesController@store')->name('user_addresses.store');
+
+  // 用户-修改收货地址信息
+  Route::get('user_addresses/{user_address}', 'UserAddressesController@edit')->name('user_addresses.edit');
+
+  // 用户-处理修改收货地址
+  Route::put('user_addresses/{user_address}', 'UserAddressesController@update')->name('user_addresses.update');
+
+  // 用户-删除收货地址
+  Route::delete('user_addresses/{user_address}', 'UserAddressesController@destroy')->name('user_addresses.destroy');
 });
 
 
