@@ -44,49 +44,65 @@ class ProductsController extends AdminController
     return $grid;
   }
 
-  /**
-   * Make a show builder.
-   *
-   * @param mixed $id
-   * @return Show
-   */
-  protected function detail($id)
-  {
-    $show = new Show(Product::findOrFail($id));
 
-    $show->field('id', __('Id'));
-    $show->field('title', __('Title'));
-    $show->field('description', __('Description'));
-    $show->field('image', __('Image'));
-    $show->field('on_sale', __('On sale'));
-    $show->field('rating', __('Rating'));
-    $show->field('sold_count', __('Sold count'));
-    $show->field('review_count', __('Review count'));
-    $show->field('price', __('Price'));
-    $show->field('created_at', __('Created at'));
-    $show->field('updated_at', __('Updated at'));
+  // protected function detail($id)
+  // {
+  //   $show = new Show(Product::findOrFail($id));
 
-    return $show;
-  }
+  //   $show->field('id', __('Id'));
+  //   $show->field('title', __('Title'));
+  //   $show->field('description', __('Description'));
+  //   $show->field('image', __('Image'));
+  //   $show->field('on_sale', __('On sale'));
+  //   $show->field('rating', __('Rating'));
+  //   $show->field('sold_count', __('Sold count'));
+  //   $show->field('review_count', __('Review count'));
+  //   $show->field('price', __('Price'));
+  //   $show->field('created_at', __('Created at'));
+  //   $show->field('updated_at', __('Updated at'));
 
-  /**
-   * Make a form builder.
-   *
-   * @return Form
-   */
+  //   return $show;
+  // }
+
+
+  // 编辑或添加商品
   protected function form()
   {
     $form = new Form(new Product());
 
-    $form->text('title', __('Title'));
-    $form->textarea('description', __('Description'));
-    $form->image('image', __('Image'));
-    $form->switch('on_sale', __('On sale'))->default(1);
-    $form->decimal('rating', __('Rating'))->default(5.00);
-    $form->number('sold_count', __('Sold count'));
-    $form->number('review_count', __('Review count'));
-    $form->decimal('price', __('Price'));
+    // 创建一个输入框，第一个参数 title 是模型的字段名，第二个参数是该字段描述
+    $form->text('title', '商品名称')->rules('required');  // rules()方法可以定义对应字段在提交时的校验规则，验证规则与 Laravel 的验证规则一致
+
+    // 创建一个选择图片的框
+    $form->image('image', '封面图片')->rules('required|image');
+
+    // 创建一个富文本编辑器
+    $form->quill('description', '商品描述')->rules('required');
+
+    // 创建一组单选框-options表示选项
+    $form->radio('on_sale', '上架')->options(['1' => '是', '0' => '否'])->default('0');
+
+    // 直接添加一对多的关联模型
+    /*
+      skus-第一个参数必须和主模型中定义此关联关系的方法同名(之前在 App\Models\Product 类中定义了skus()方法来关联SKU)
+      第三个参数是一个匿名函数，用来定义关联模型的字段
+    */
+    $form->hasMany('skus', 'SKU 列表', function (Form\NestedForm $form) {
+      $form->text('title', 'SKU 名称')->rules('required');
+      $form->text('description', 'SKU 描述')->rules('required');
+      $form->text('price', '单价')->rules('required|numeric|min:0.01');
+      $form->text('stock', '剩余库存')->rules('required|integer|min:0');
+    });
+
+    // 定义事件回调，当模型即将保存时会触发这个回调
+    $form->saving(function (Form $form) {
+      // collect() 函数是 Laravel 提供的一个辅助函数，可以快速创建一个 Collection 对象
+      // 这里将用户提交的SKU数据放到Collection中，用min方法求出所有SKU的最低price
+      //where(Form::REMOVE_FLAG_NAME, 0)，需要判断_remove_是否为0，(否则编辑保存等于无效-SKU不变)
+      $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
+    });
 
     return $form;
   }
 }
+
