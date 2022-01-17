@@ -29,6 +29,11 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
 
   // 用户-删除收货地址
   Route::delete('user_addresses/{user_address}', 'UserAddressesController@destroy')->name('user_addresses.destroy');
+
+  // 用户-收藏或取消收藏商品
+  Route::post('products/{product}/favorite', 'ProductsController@favor')->name('products.favor');
+  Route::delete('products/{product}/favorite', 'ProductsController@disfavor')->name('products.disfavor');
+
 });
 
 // 商品列表
