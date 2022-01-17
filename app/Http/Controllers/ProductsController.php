@@ -9,7 +9,7 @@ use App\Models\Product;
 class ProductsController extends Controller
 {
 
-
+  // 商品显示-查询排序
   public function index(Request $request)
   {
     // 创建一个查询构造器
@@ -50,9 +50,19 @@ class ProductsController extends Controller
       'products' => $products,
       // 传回搜索参数到模板中
       'filters'  => [
-          'search' => $search,
-          'order'  => $order,
+        'search' => $search,
+        'order'  => $order,
       ],
-  ]);
+    ]);
+  }
+
+  public function show(Product $product, Request $request)
+  {
+    // 判断商品是否已经上架，如果没有上架则抛出异常。
+    if (!$product->on_sale) {
+      throw new \Exception('商品未上架');
+    }
+
+    return view('products.show', ['product' => $product]);
   }
 }
