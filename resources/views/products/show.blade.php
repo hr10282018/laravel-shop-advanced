@@ -123,7 +123,10 @@
         amount: $('.cart_amount input').val(),
       })
         .then(function () { // 请求成功执行此回调
-          swal('加入购物车成功', '', 'success');
+          swal('加入购物车成功', '', 'success').then(function() {
+            location.href = '{{ route('cart.index') }}';
+          });
+          
         }, function (error) { // 请求失败执行此回调
           if (error.response.status === 401) {
 
@@ -132,7 +135,7 @@
 
           } else if (error.response.status === 422) {
 
-            // http 状态码为 422 代表用户输入校验失败 
+            // http 状态码为 422 代表用户输入校验失败
             var html = '<div>';
             _.each(error.response.data.errors, function (errors) {
               _.each(errors, function (error) {

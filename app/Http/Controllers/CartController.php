@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\AddCartRequest;
 use App\Models\CartItem;
+use App\Models\ProductSku;
 
 
 class CartController extends Controller
@@ -35,4 +36,22 @@ class CartController extends Controller
 
     return [];
   }
+
+  // 用户查看购物车
+  public function index(Request $request)
+  {
+    // with-预加载。通过.的方式加载多层级的关联关系
+    $cartItems = $request->user()->cartItems()->with(['productSku.product'])->get();
+
+    return view('cart.index', ['cartItems' => $cartItems]);
+  }
+
+  // 用户从购物车移除商品
+  public function remove(ProductSku $sku, Request $request)
+  {
+    $request->user()->cartItems()->where('product_sku_id', $sku->id)->delete();
+
+    return [];
+  }
+  
 }
