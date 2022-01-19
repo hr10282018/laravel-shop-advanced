@@ -10,21 +10,26 @@ use Carbon\Carbon;
 use App\Exceptions\InvalidRequestException;
 use App\Jobs\CloseOrder;    // 关闭订单队列
 use Illuminate\Http\Request;
+use App\Services\CartService; // 封装代码类-购物车
+use App\Services\OrderService;
 
 class OrdersController extends Controller
 {
 
-  // 处理用户购物车下单数据
-  public function store(OrderRequest $request)
+  /***
+  处理用户购物车下单数据
+  public function store(OrderRequest $request, CartService $cartService) // 利用Laravel的自动解析功能注入 CartService 类
   {
     //dd($request->all());
     $user  = $request->user();
 
     // 开启一个数据库事务
-    $order = \DB::transaction(function () use ($user, $request) {
+    $order = \DB::transaction(function () use ($user, $request, $cartService) { //把 $cartService 加入use中
       $address = UserAddress::find($request->input('address_id'));
+
       // 更新此地址的最后使用时间
       $address->update(['last_used_at' => Carbon::now()]);
+
       // 创建一个订单
       $order = new Order([
         'address' => [ // 将地址信息放入订单中
@@ -36,6 +41,7 @@ class OrdersController extends Controller
         'remark' => $request->input('remark'),
         'total_amount' => 0,
       ]);
+
       // 订单关联到当前用户
       $order->user()->associate($user);
       // 写入数据库
@@ -65,9 +71,15 @@ class OrdersController extends Controller
       // 更新订单总金额
       $order->update(['total_amount' => $totalAmount]);
 
-      // 将下单的商品从购物车中移除
-      $skuIds = collect($items)->pluck('sku_id');
-      $user->cartItems()->whereIn('product_sku_id', $skuIds)->delete();
+
+      {{
+        将下单的商品从购物车中移除
+        $skuIds = collect($items)->pluck('sku_id');
+        $user->cartItems()->whereIn('product_sku_id', $skuIds)->delete();
+      }}
+      // 封装以上{{}}中的代码
+      $skuIds = collect($request->input('items'))->pluck('sku_id')->all();
+      $cartService->remove($skuIds);
 
       return $order;
     });
@@ -76,6 +88,17 @@ class OrdersController extends Controller
     $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
     return $order;
   }
+  */
+
+  // 处理用户购物车下单-封装以上的store()
+  public function store(OrderRequest $request, OrderService $orderService)
+  {
+    $user    = $request->user();
+    $address = UserAddress::find($request->input('address_id'));
+
+    return $orderService->store($user, $address, $request->input('remark'), $request->input('items'));
+  }
+
 
   // 订单列表页
   public function index(Request $request)
