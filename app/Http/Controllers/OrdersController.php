@@ -8,6 +8,8 @@ use App\Models\UserAddress;
 use App\Models\Order;
 use Carbon\Carbon;
 use App\Exceptions\InvalidRequestException;
+use App\Jobs\CloseOrder;    // 关闭订单队列
+
 
 class OrdersController extends Controller
 {
@@ -70,6 +72,9 @@ class OrdersController extends Controller
       return $order;
     });
 
+    // 第一个参数是订单；第二个参数设置任务时间(在config/app.php中去定义-30分钟，如果用户没在30分钟支付则自动取消订单)
+    $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
     return $order;
   }
+  
 }
