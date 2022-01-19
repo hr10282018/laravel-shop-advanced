@@ -77,7 +77,7 @@ class OrdersController extends Controller
     return $order;
   }
 
-  // 订单列表
+  // 订单列表页
   public function index(Request $request)
   {
     $orders = Order::query()
@@ -88,5 +88,14 @@ class OrdersController extends Controller
       ->paginate();
 
     return view('orders.index', ['orders' => $orders]);
+  }
+  // 订单详情页
+  public function show(Order $order, Request $request)
+  {
+    // 用户权限-查看自己的订单
+    $this->authorize('own', $order);
+
+    // load() 方法与 with()预加载方法有些类似，称为 延迟预加载
+    return view('orders.show', ['order' => $order->load(['items.productSku', 'items.product'])]);
   }
 }
