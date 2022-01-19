@@ -43,7 +43,10 @@ class CartController extends Controller
     // with-预加载。通过.的方式加载多层级的关联关系
     $cartItems = $request->user()->cartItems()->with(['productSku.product'])->get();
 
-    return view('cart.index', ['cartItems' => $cartItems]);
+    // 用户收货地址-根据时间倒序取出
+    $addresses = $request->user()->addresses()->orderBy('last_used_at', 'desc')->get();
+
+    return view('cart.index', ['cartItems' => $cartItems, 'addresses' => $addresses]);
   }
 
   // 用户从购物车移除商品
@@ -53,5 +56,7 @@ class CartController extends Controller
 
     return [];
   }
-  
+
+
+
 }
