@@ -63,7 +63,16 @@ Route::get('products', 'ProductsController@index')->name('products.index');
 // 商品详情
 Route::get('products/{product}', 'ProductsController@show')->name('products.show');
 
-
+/*
+测试支付宝支付
+Route::get('alipay', function() {
+  return app('alipay')->web([
+      'out_trade_no' => time(),
+      'total_amount' => '0.1',
+      'subject' => 'test subject - 测试',
+  ]);
+});
+*/
 
 
 
