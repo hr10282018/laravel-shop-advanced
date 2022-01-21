@@ -54,6 +54,11 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
 
   // 用户-订单详情
   Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
+
+  // 用户-支付订单(支付宝)
+  Route::get('payment/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
+  // 支付宝前端回调
+  Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');
 });
 
 // 商品列表
@@ -63,16 +68,19 @@ Route::get('products', 'ProductsController@index')->name('products.index');
 // 商品详情
 Route::get('products/{product}', 'ProductsController@show')->name('products.show');
 
-/*
-测试支付宝支付
-Route::get('alipay', function() {
-  return app('alipay')->web([
-      'out_trade_no' => time(),
-      'total_amount' => '0.1',
-      'subject' => 'test subject - 测试',
-  ]);
-});
-*/
+// 支付宝后端回调-不能在auth中间件里，因为支付宝的服务器请求不会带有认证信息
+Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
+
+
+// 测试支付宝支付
+// Route::get('alipay', function() {
+//   return app('alipay')->web([     // web()-表示用电脑支付
+//       'out_trade_no' => time(),
+//       'total_amount' => '0.1',
+//       'subject' => 'test subject - 测试',
+//   ]);
+// });
+
 
 
 

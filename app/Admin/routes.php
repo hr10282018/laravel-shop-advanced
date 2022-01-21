@@ -21,7 +21,8 @@ Route::group([
   $router->post('products', 'ProductsController@store');        // 处理创建商品数据
 
   $router->get('products/{id}/edit', 'ProductsController@edit');  // 编辑商品
-  $router->put('products/{id}', 'ProductsController@update');     // 
+  $router->put('products/{id}', 'ProductsController@update');     //
 
+  $router->get('orders', 'OrdersController@index')->name('admin.orders.index'); // 订单列表
 
 });
