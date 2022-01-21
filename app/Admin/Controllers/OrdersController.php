@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Models\Order;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Grid;
+use Encore\Admin\Layout\Content;  // 自定义show方法-展示详细订单，需要此trait
 
 class OrdersController extends AdminController
 {
@@ -28,7 +29,7 @@ class OrdersController extends AdminController
     $grid->refund_status('退款状态')->display(function ($value) {
       return Order::$refundStatusMap[$value];
     });
-    
+
     // 禁用创建按钮，后台不需要创建订单
     $grid->disableCreateButton();
     $grid->actions(function ($actions) {
@@ -44,5 +45,13 @@ class OrdersController extends AdminController
     });
 
     return $grid;
+  }
+
+  public function show($id, Content $content)
+  {
+    return $content
+      ->header('查看订单')
+      // body 方法可以接受 Laravel 的视图作为参数
+      ->body(view('admin.orders.show', ['order' => Order::find($id)]));
   }
 }
