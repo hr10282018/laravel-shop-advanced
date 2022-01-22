@@ -62,6 +62,11 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
 
   // 用户-确认收货
   Route::post('orders/{order}/received', 'OrdersController@received')->name('orders.received');
+
+  // 用户-评价页面
+  Route::get('orders/{order}/review', 'OrdersController@review')->name('orders.review.show');
+  // 用户-处理评价
+  Route::post('orders/{order}/review', 'OrdersController@sendReview')->name('orders.review.store');
 });
 
 // 商品列表
