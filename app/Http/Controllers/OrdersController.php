@@ -14,6 +14,8 @@ use App\Services\CartService; // 封装代码类-购物车
 use App\Services\OrderService;
 use App\Http\Requests\SendReviewRequest;
 use App\Events\OrderReviewed;   // 事件-用户评分
+use App\Http\Requests\ApplyRefundRequest; // 图款请求
+
 
 class OrdersController extends Controller
 {
@@ -185,6 +187,31 @@ class OrdersController extends Controller
     event(new OrderReviewed($order));   // 用户评分事件(触发)
 
     return redirect()->back();
+  }
 
+
+  // 用户-处理退款
+  public function applyRefund(Order $order, ApplyRefundRequest $request)
+  {
+    // 校验订单是否属于当前用户
+    $this->authorize('own', $order);
+    // 判断订单是否已付款
+    if (!$order->paid_at) {
+      throw new InvalidRequestException('该订单未支付，不可退款');
+    }
+    // 判断订单退款状态是否正确
+    if ($order->refund_status !== Order::REFUND_STATUS_PENDING) {
+      throw new InvalidRequestException('该订单已经申请过退款，请勿重复申请');
+    }
+    // 将用户输入的退款理由放到订单的 extra 字段中
+    $extra                  = $order->extra ?: [];
+    $extra['refund_reason'] = $request->input('reason');
+    // 将订单退款状态改为已申请退款
+    $order->update([
+      'refund_status' => Order::REFUND_STATUS_APPLIED,
+      'extra'         => $extra,
+    ]);
+
+    return $order;
   }
 }
