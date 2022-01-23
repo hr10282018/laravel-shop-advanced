@@ -119,4 +119,11 @@ class Order extends Model
   {
     return $this->hasMany(OrderItem::class);  // 一个订单有多个详细的SKU商品订单
   }
+
+  // 订单-优惠券码
+  public function couponCode()
+  {
+    return $this->belongsTo(CouponCode::class);
+  }
+
 }
