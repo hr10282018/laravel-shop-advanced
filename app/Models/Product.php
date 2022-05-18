@@ -32,4 +32,10 @@ class Product extends Model
   {
     return $this->hasMany(ProductSku::class); // 一个商品有多个SKU
   }
+
+  // 一个商品 属于一个 类目
+  public function category()
+  {
+    return $this->belongsTo(Category::class);
+  }
 }
