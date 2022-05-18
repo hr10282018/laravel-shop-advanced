@@ -92,7 +92,7 @@ Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('pa
 // Route::get('alipay', function() {
 //   return app('alipay')->web([     // web()-表示用电脑支付
 //       'out_trade_no' => time(),
-//       'total_amount' => '0.1',
+//       'total_amount' => '1',
 //       'subject' => 'test subject - 测试',
 //   ]);
 // });
