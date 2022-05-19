@@ -19,7 +19,15 @@ $factory->define(Product::class, function (Faker $faker) {
     "https://cdn.learnku.com/uploads/images/201806/01/5320/pa7DrV43Mw.jpg",
   ]);
 
+  // 从数据库随机取一个类目
+  $category= \App\Models\Category::query()->where('is_directory',false)->inRandomOrder()->first();
+
+   
   return [
+    // 取出的类目 ID 赋给 category_id 字段
+    // 如果 数据库中没有类目则 $category 为 null ，同样 category_id 也设成 null
+    'category_id'  => $category ? $category->id : null,
+
     'title'        => $faker->word,
     'description'  => $faker->sentence,
     'image'        => $image,

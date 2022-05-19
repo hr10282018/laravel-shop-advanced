@@ -108,7 +108,8 @@ class CategoriesController extends AdminController
     $search = $request->input('q');
 
     $result = Category::query()
-      ->where('is_directory', true)    // 由于选择时父类目，所以 该字段为true
+    // 通过 is_directory 参数来控制
+      ->where('is_directory', boolval($request->input('is_directory',true)))    // 由于选择是父类目，所以 该字段为true
       ->where('name', 'like', '%' . $search . '%')
       ->paginate();
 
