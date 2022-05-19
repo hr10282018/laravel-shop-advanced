@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Exceptions\InvalidRequestException;   // 自定义异常
+use App\Models\Category;
 use App\Models\OrderItem;
+use App\Services\CategoryService;
 
 class ProductsController extends Controller
 {
 
   // 商品显示-查询排序
-  public function index(Request $request)
+  public function index(Request $request) 
   {
     // 创建一个查询构造器
     $builder = Product::query()->where('on_sale', true);
+
     // 判断是否有提交 search 参数，如果有就赋值给 $search 变量
     // search 参数用来模糊搜索商品
     if ($search = $request->input('search', '')) {
@@ -30,6 +33,21 @@ class ProductsController extends Controller
           });
       });
     }
+
+    // 如果有传入 category_id 字段，且在数据库有对应类目
+    if($request->input('category_id') && $category=Category::find($request->input('category_id'))){
+      if($category->is_directory){      // 如果这是一个父类目
+        //  筛选出该父类目下所有子类目的商品
+        $builder->whereHas('category',function($query) use ($category){ // whereHas -子查询
+          // 例子：父类目的path为 -  子类目的path有 -1-、-1-2-  （所以like path+父类目id+'-%'）
+          $query->where('path','like',$category->path.$category->id.'-%');
+        }); 
+      }else{
+        // 如果不是一个父类目，则直接筛选此类目下的商品
+        $builder->where('category_id',$category->id);
+      }
+    }
+
 
     // 是否有提交 order 参数，如果有就赋值给 $order 变量
     // order 参数用来控制商品的排序规则
@@ -54,6 +72,10 @@ class ProductsController extends Controller
         'search' => $search,
         'order'  => $order,
       ],
+      // 等价于 isset($category) ? $category : null
+      'category' => $category ?? null,
+      // 将类目树传给模板
+      //'categoryTree' => $categoryService->getCategoryTree(),
     ]);
   }
 
