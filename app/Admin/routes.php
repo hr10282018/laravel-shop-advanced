@@ -25,7 +25,7 @@ Route::group([
 
   $router->get('orders', 'OrdersController@index')->name('admin.orders.index'); // 订单列表
   $router->get('orders/{order}', 'OrdersController@show')->name('admin.orders.show'); // 订单详情
-  $router->post('orders/{order}/ship', 'OrdersController@ship')->name('admin.orders.ship');// 订单发货
+  $router->post('orders/{order}/ship', 'OrdersController@ship')->name('admin.orders.ship'); // 订单发货
 
   // 处理用户退款
   $router->post('orders/{order}/refund', 'OrdersController@handleRefund')->name('admin.orders.handle_refund');
@@ -43,7 +43,7 @@ Route::group([
 
   // 优惠券-删除
   $router->delete('coupon_codes/{id}', 'CouponCodesController@destroy');
-  
+
   // 类目
   $router->get('categories', 'CategoriesController@index');
   $router->get('categories/create', 'CategoriesController@create');
@@ -53,6 +53,12 @@ Route::group([
   $router->delete('categories/{id}', 'CategoriesController@destroy');
   $router->get('api/categories', 'CategoriesController@apiIndex');    // ajax 
 
+  // 众筹商品
+  $router->get('crowdfunding_products', 'CrowdfundingProductsController@index');
+  $router->get('crowdfunding_products/create', 'CrowdfundingProductsController@create');
+  $router->post('crowdfunding_products', 'CrowdfundingProductsController@store');
+  $router->get('crowdfunding_products/{id}/edit', 'CrowdfundingProductsController@edit');
+  $router->put('crowdfunding_products/{id}', 'CrowdfundingProductsController@update');
 
-
+  
 });

@@ -20,8 +20,9 @@ class ProductsController extends AdminController
     $grid = new Grid(new Product());
 
     // 使用 with 预加载商品类目数据，减少SQL查询
-    $grid->model()->with(['category']);
-    
+    //$grid->model()->with(['category']);
+    $grid->model()->where('type',Product::TYPE_NORMAL)->with(['category']);   // 取普通类商品
+
     $grid->column('id', 'ID')->sortable();
     $grid->column('title', '商品名称');
 
@@ -76,6 +77,9 @@ class ProductsController extends AdminController
   protected function form()
   {
     $form = new Form(new Product());
+
+    // 在表单中添加一个名为 type，值为 Product::TYPE_NORMAL 的隐藏字段
+    $form->hidden('type')->value(Product::TYPE_NORMAL);
 
     // 创建一个输入框，第一个参数 title 是模型的字段名，第二个参数是该字段描述
     $form->text('title', '商品名称')->rules('required');  // rules()方法可以定义对应字段在提交时的校验规则，验证规则与 Laravel 的验证规则一致
