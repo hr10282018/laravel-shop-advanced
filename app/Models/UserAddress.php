@@ -24,6 +24,11 @@ class UserAddress extends Model
   */
   protected $dates = ['last_used_at'];
 
+  // full_address 并非真实字段，在页面 JSON 序列化时，没有携带
+  protected $appends = ['full_address'];    // 通过添加到appends，Laravel序列化该模型时，也会把 full_address 序列化进来
+
+  
+
   // 收货地址-用户
   public function user()
   {

@@ -74,7 +74,9 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
   // 用户-检查优惠券
   Route::get('coupon_codes/{code}', 'CouponCodesController@show')->name('coupon_codes.show');
 
-  
+  // 众筹下单
+  Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
+
 });
 
 // 商品列表

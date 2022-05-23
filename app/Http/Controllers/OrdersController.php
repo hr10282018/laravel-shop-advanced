@@ -17,6 +17,8 @@ use App\Events\OrderReviewed;   // 事件-用户评分
 use App\Http\Requests\ApplyRefundRequest; // 图款请求
 use App\Exceptions\CouponCodeUnavailableException;
 use App\Models\CouponCode;
+use App\Http\Requests\CrowdFundingOrderRequest;
+
 
 class OrdersController extends Controller
 {
@@ -224,5 +226,17 @@ class OrdersController extends Controller
     ]);
 
     return $order;
+  }
+
+  // 创建方法用于接受众筹商品下单请求
+  public function crowdfunding(CrowdFundingOrderRequest $request, OrderService $orderService){
+
+    $user=$request->user();
+    $sku=ProductSku::find($request->input('sku_id'));
+    $address=UserAddress::find($request->input('address_id'));
+    //dd($address);
+    $amount=$request->input('amount');
+
+    return $orderService->crowdfunding($user, $address, $sku, $amount);
   }
 }
