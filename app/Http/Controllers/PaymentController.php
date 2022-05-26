@@ -36,6 +36,7 @@ class PaymentController extends Controller
     // 校验提交的参数是否合法，同时还会返回解析后的参数
     try {
       app('alipay')->verify();
+      // dd($data);
     } catch (\Exception $e) {
       return view('pages.error', ['msg' => '数据不正确']);
     }
@@ -47,6 +48,8 @@ class PaymentController extends Controller
   {
     // 校验输入参数
     $data  = app('alipay')->verify();
+    // \Log::debug('Alipay notify', $data->all()); 由于服务器端的请求我们无法看到返回值，使用 dd 就不行，所以需要通过日志的方式来保存。
+
     // 如果订单状态不是成功或者结束，则不走后续的逻辑
     // 所有交易状态：https://docs.open.alipay.com/59/103672
     if (!in_array($data->trade_status, ['TRADE_SUCCESS', 'TRADE_FINISHED'])) {

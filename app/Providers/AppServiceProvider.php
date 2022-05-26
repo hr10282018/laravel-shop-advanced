@@ -16,7 +16,11 @@ class AppServiceProvider extends ServiceProvider
       $config = config('pay.alipay');
 
       //$config['notify_url'] = route('payment.alipay.notify');   // 服务器回调地址-完整的URL
-      $config['notify_url'] = "http://requestbin.net/r/ca91u4ds";
+
+      //$config['notify_url'] = "http://v1.requestbin.net/r/891poesn";   //
+
+      $config['notify_url'] = ngrok_url('payment.alipay.notify');   // 使用 ngrok 的url
+      
       $config['return_url'] = route('payment.alipay.return');   // 前端回调地址
 
       // 判断当前项目运行环境是否为线上环境

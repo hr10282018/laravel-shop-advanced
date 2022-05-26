@@ -140,6 +140,7 @@ class OrderService
 
     // 众筹结束时间减去当前时间得到的剩余时间 秒
     $crowdfundingTtl = $sku->product->crowdfunding->end_at->getTimestamp() - time();
+    
     // 剩余秒数与默认订单关闭时间取较小值作为订单关闭时间 （众筹结束，订单也必须关闭，否则用户还可以支付）
     dispatch(new CloseOrder($order, min(config('app.order_ttl'), $crowdfundingTtl)));
 

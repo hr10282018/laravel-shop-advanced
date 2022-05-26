@@ -2,6 +2,9 @@
 
 return [
 
+
+    'ngrok_url' => env('NGROK_URL'),
+
     'order_ttl' => 1800,  // 半小时
 
     /*
@@ -14,6 +17,8 @@ return [
     | any other location as required by the application or its packages.
     |
     */
+
+
 
     'name' => env('APP_NAME', 'Laravel'),
 
