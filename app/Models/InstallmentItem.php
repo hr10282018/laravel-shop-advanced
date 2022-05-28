@@ -38,10 +38,7 @@ class InstallmentItem extends Model
   // 访问器，返回当前还款计划需还款的总金额
   public function getTotalAttribute()
   {
-    // 小数点计算需用 bcmath 扩展提供的函数
-    $total=big_number($this->base)->add($this->fee);
-
-    //$total=bcadd($this->base,$this->fee,2);   // 相加
+    $total = big_number($this->base)->add($this->fee);
     if (!is_null($this->fine)) {
       $total->add($this->fine);
     }
@@ -51,7 +48,7 @@ class InstallmentItem extends Model
   // 访问器，返回当前还款计划是否已经逾期
   public function getIsOverdueAttribute()
   {
-      return Carbon::now()->gt($this->due_date);  // 现在时间 > 逾期时间，返回true 
+    return Carbon::now()->gt($this->due_date);  // 现在时间 > 逾期时间，返回true 
   }
 
   // 一个还款计划属于一个分期信息
