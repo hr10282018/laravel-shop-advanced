@@ -77,9 +77,11 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
   // 众筹下单
   Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
 
-  // 分期付款
+  // 分期付款-处理
   Route::post('payment/{order}/installment', 'PaymentController@payByInstallment')->name('payment.installment');
   
+  // 分期付款页
+  Route::get('installments', 'InstallmentsController@index')->name('installments.index');
 });
 
 // 商品列表
