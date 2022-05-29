@@ -85,6 +85,10 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
 
   // 分期付款详情页
   Route::get('installments/{installment}', 'InstallmentsController@show')->name('installments.show');
+
+  // 分期还款回调
+  Route::get('installments/{installment}/alipay', 'InstallmentsController@payByAlipay')->name('installments.alipay');
+  Route::get('installments/alipay/return', 'InstallmentsController@alipayReturn')->name('installments.alipay.return');
 });
 
 // 商品列表
@@ -97,6 +101,8 @@ Route::get('products/{product}', 'ProductsController@show')->name('products.show
 // 支付宝后端回调-不能在auth中间件里，因为支付宝的服务器请求不会带有认证信息
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
 
+// 分期还款-后端回调
+Route::post('installments/alipay/notify', 'InstallmentsController@alipayNotify')->name('installments.alipay.notify');
 
 // 测试支付宝支付
 // Route::get('alipay', function() {
