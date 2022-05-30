@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Models\CouponCode;
 use App\Exceptions\CouponCodeUnavailableException;  // 优惠券异常处理
 use App\Exceptions\InternalException;
+use App\Jobs\RefundInstallmentOrder;
 
 class OrderService
 {
@@ -147,6 +148,7 @@ class OrderService
     return $order;
   }
 
+  // 商品退款
   public function refundOrder(Order $order)
   {
     // 判断该订单支付方式
@@ -189,9 +191,18 @@ class OrderService
           ]);
         }
         break;
+        
+      case 'installment':
+        $order->update([
+          'refund_no' => Order::getAvailableRefundNo(), // 生成退款订单号
+          'refund_status' => Order::REFUND_STATUS_PROCESSING, // 将退款状态改为退款中
+        ]);
+        // 触发退款异步任务
+        dispatch(new RefundInstallmentOrder($order));
+        break;
 
       default:
-        throw new InternalException('未知订单支付方式：'.$order->payment_method);
+        throw new InternalException('未知订单支付方式：' . $order->payment_method);
         break;
     }
   }
