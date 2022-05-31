@@ -11,7 +11,7 @@ class Product extends Model
   const TYPE_NORMAL = 'normal';
   const TYPE_CROWDFUNDING = 'crowdfunding';
 
-  public static $typeMap=[
+  public static $typeMap = [
     self::TYPE_NORMAL => '普通商品',
     self::TYPE_CROWDFUNDING => '众筹商品',
   ];
@@ -44,6 +44,18 @@ class Product extends Model
   }
 
 
+  public function getGroupedPropertiesAttribute()
+  {
+    return $this->properties
+      // 按照属性名聚合，返回的集合的 key 是属性名，value 是包含该属性名的所有属性集合
+      ->groupBy('name')
+      ->map(function ($properties) {
+        // 使用 map 方法将属性集合变为属性值集合
+        return $properties->pluck('value')->all();    // 这里的all() 相当于取 name 组下的所有value值，比如机身颜色有两种（first()-就是只取一个）
+    });
+  }
+
+
   // 商品-SKU
   public function skus()
   {
@@ -57,8 +69,14 @@ class Product extends Model
   }
 
   // 一个商品有一个众筹
-  public function crowdfunding(){
+  public function crowdfunding()
+  {
     return $this->hasOne(CrowdfundingProduct::class);
   }
 
+  // 一个商品有多个商品属性
+  public function properties()
+  {
+    return $this->hasMany(ProductProperty::class);
+  }
 }
