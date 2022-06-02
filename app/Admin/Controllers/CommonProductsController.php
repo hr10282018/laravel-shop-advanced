@@ -1,6 +1,7 @@
 <?php
 namespace App\Admin\Controllers;
 
+use App\Jobs\SyncOneProductToES;
 use App\Models\Category;
 use App\Models\Product;
 use Encore\Admin\Grid;
@@ -69,11 +70,16 @@ abstract class CommonProductsController extends AdminController
       $form->text('value', '属性值')->rules('required');
     });
 
-    // 表单提交前
+    // 数据保存前
     $form->saving(function (Form $form) {
       $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
     });
 
+    // 数据保存后，将创建或修改的数据 同步到 ES
+    $form->saved(function(Form $form){
+      $product=$form->model();
+      dispatch(new SyncOneProductToES($product));
+    });
     return $form;
   }
 

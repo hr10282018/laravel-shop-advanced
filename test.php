@@ -1,5 +1,6 @@
 <?php
 
+
 $a=null;
 
 if(isset($a)){  
