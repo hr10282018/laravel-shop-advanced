@@ -8,74 +8,179 @@ use App\Exceptions\InvalidRequestException;   // 自定义异常
 use App\Models\Category;
 use App\Models\OrderItem;
 use App\Services\CategoryService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductsController extends Controller
 {
 
   // 商品显示-查询排序
-  public function index(Request $request) 
+  // public function index(Request $request) 
+  // {
+
+  //   // 创建一个查询构造器
+  //   $builder = Product::query()->where('on_sale', true);
+
+  //   // 判断是否有提交 search 参数，如果有就赋值给 $search 变量
+  //   // search 参数用来模糊搜索商品
+  //   if ($search = $request->input('search', '')) {
+  //     $like = '%' . $search . '%';
+  //     // 模糊搜索商品标题、商品详情、SKU 标题、SKU描述
+  //     // SQL类似-select * from products where on_sale = 1 and ( title like xxx or description like xxx )
+  //     $builder->where(function ($query) use ($like) {
+  //       $query->where('title', 'like', $like)
+  //         ->orWhere('description', 'like', $like)
+  //         ->orWhereHas('skus', function ($query) use ($like) {
+  //           $query->where('title', 'like', $like)
+  //             ->orWhere('description', 'like', $like);
+  //         });
+  //     });
+  //   }
+
+  //   // 如果有传入 category_id 字段，且在数据库有对应类目
+  //   if($request->input('category_id') && $category=Category::find($request->input('category_id'))){
+  //     if($category->is_directory){      // 如果这是一个父类目
+  //       //  筛选出该父类目下所有子类目的商品
+  //       $builder->whereHas('category',function($query) use ($category){ // whereHas -子查询
+  //         // 例子：父类目的path为 -  子类目的path有 -1-、-1-2-  （所以like path+父类目id+'-%'）
+  //         $query->where('path','like',$category->path.$category->id.'-%');
+  //       }); 
+  //     }else{
+  //       // 如果不是一个父类目，则直接筛选此类目下的商品
+  //       $builder->where('category_id',$category->id);
+  //     }
+  //   }
+
+
+  //   // 是否有提交 order 参数，如果有就赋值给 $order 变量
+  //   // order 参数用来控制商品的排序规则
+  //   if ($order = $request->input('order', '')) {
+  //     // 是否是以 _asc 或者 _desc 结尾
+  //     if (preg_match('/^(.+)_(asc|desc)$/', $order, $m)) {
+  //       // 如果字符串的开头是这 3 个字符串之一，说明是一个合法的排序值
+  //       if (in_array($m[1], ['price', 'sold_count', 'rating'])) {
+  //         // 根据传入的排序值来构造排序参数
+  //         $builder->orderBy($m[1], $m[2]);
+  //       }
+  //     }
+  //   }
+
+  //   $products = $builder->paginate(16);
+
+
+  //   return view('products.index', [
+  //     'products' => $products,
+  //     // 传回搜索参数到模板中
+  //     'filters'  => [
+  //       'search' => $search,
+  //       'order'  => $order,
+  //     ],
+  //     // 等价于 isset($category) ? $category : null
+  //     'category' => $category ?? null,
+  //     // 将类目树传给模板
+  //     //'categoryTree' => $categoryService->getCategoryTree(),
+  //   ]);
+  // }
+
+  // ES 查询
+  public function index(Request $request)
   {
-    // 创建一个查询构造器
-    $builder = Product::query()->where('on_sale', true);
+    $page = $request->input('page', 1);
+    $perPage = 16;
 
-    // 判断是否有提交 search 参数，如果有就赋值给 $search 变量
-    // search 参数用来模糊搜索商品
-    if ($search = $request->input('search', '')) {
-      $like = '%' . $search . '%';
-      // 模糊搜索商品标题、商品详情、SKU 标题、SKU描述
-      // SQL类似-select * from products where on_sale = 1 and ( title like xxx or description like xxx )
-      $builder->where(function ($query) use ($like) {
-        $query->where('title', 'like', $like)
-          ->orWhere('description', 'like', $like)
-          ->orWhereHas('skus', function ($query) use ($like) {
-            $query->where('title', 'like', $like)
-              ->orWhere('description', 'like', $like);
-          });
-      });
-    }
+    // 构建查询
+    $params = [
+      'index' => 'products',
+      'body'  => [
+        'from'  => ($page - 1) * $perPage, // 通过当前页数与每页数量计算偏移值
+        'size'  => $perPage,
+        'query' => [
+          'bool' => [
+            'filter' => [
+              ['term' => ['on_sale' => true]],
+            ],
+          ],
+        ],
+      ],
+    ];
 
-    // 如果有传入 category_id 字段，且在数据库有对应类目
-    if($request->input('category_id') && $category=Category::find($request->input('category_id'))){
-      if($category->is_directory){      // 如果这是一个父类目
-        //  筛选出该父类目下所有子类目的商品
-        $builder->whereHas('category',function($query) use ($category){ // whereHas -子查询
-          // 例子：父类目的path为 -  子类目的path有 -1-、-1-2-  （所以like path+父类目id+'-%'）
-          $query->where('path','like',$category->path.$category->id.'-%');
-        }); 
-      }else{
-        // 如果不是一个父类目，则直接筛选此类目下的商品
-        $builder->where('category_id',$category->id);
-      }
-    }
-
-
-    // 是否有提交 order 参数，如果有就赋值给 $order 变量
+    // 是否有提交 order 参数，若有就赋值给 $order
     // order 参数用来控制商品的排序规则
     if ($order = $request->input('order', '')) {
-      // 是否是以 _asc 或者 _desc 结尾
-      if (preg_match('/^(.+)_(asc|desc)$/', $order, $m)) {
-        // 如果字符串的开头是这 3 个字符串之一，说明是一个合法的排序值
+      //dd($order);
+      // 是否以 _asc 或 _desc 结尾
+      if (preg_match('/^(.+)_(asc|desc)$/', $order, $m)) {    // $m 返回数组匹配结果
+        //dd($m);
+        // 如果字符串
         if (in_array($m[1], ['price', 'sold_count', 'rating'])) {
-          // 根据传入的排序值来构造排序参数
-          $builder->orderBy($m[1], $m[2]);
+          // 根据传入的排序值构造排序参数
+          $params['body']['sort'] = [[$m[1] => $m[2]]];
         }
       }
     }
 
-    $products = $builder->paginate(16);
+    // 类目
+    if ($request->input('category_id') && $category = Category::find($request->input('category_id'))) {
+      if ($category->is_directory) {
+        // 如果是一个父类目，则使用 category_path 来筛选
+        $params['body']['query']['bool']['filter'][] = [
+          'prefix'  => ['category_path'  => $category->path . $category->id . '-'],  // 前缀查询，等同Mysql的 like '${path}%'
+        ];
+      } else {
+        // 否则直接 通过 category_id 筛选
+        $params['body']['query']['bool']['filter'][] = ['term' => ['category_id' => $category->id]];
+      }
+    }
 
+    // 关键词
+    if ($search = $request->input('search', '')) {
+
+      //dd($search);
+      // 将搜索词 根据空格分成数组，并过滤掉空项
+      $keywords = array_filter(explode(' ', $search));
+
+      $params['body']['query']['bool']['must'] = [];
+      // 遍历搜索词数组，分别添加到 must 查询中
+      foreach ($keywords as $keyword) {
+        $params['body']['query']['bool']['must'][] = [
+          'multi_match' => [
+            'query'  => $keyword,
+            'fields' => [
+              'title^2',
+              'long_title^2',
+              'category^2',
+              'description',
+              'skus_title',
+              'skus_description',
+              'properties_value',
+            ],
+          ],
+        ];
+      }
+    }
+    //dd($params);
+
+    $result = app('es')->search($params);
+
+    // 通过 collect 函数将返回结果转集合，并通过集合的 pluck 方法取返回商品的 id 数组
+    $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
+    // 通过 whereIn 方法从数据库中读取商品数据
+    $products = Product::query()
+      ->whereIn('id', $productIds)
+      ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $productIds)))    // 要按照该顺序取出数据
+      ->get();
+
+    // 返回一个 LengthAwarePaginator 对象。 $result['hits']['total']['value'] 是总数
+    $pager = new LengthAwarePaginator($products, $result['hits']['total']['value'], $perPage, $page, [
+      'path' => route('products.index', false), // 手动构建分页的 url
+    ]);
 
     return view('products.index', [
-      'products' => $products,
-      // 传回搜索参数到模板中
-      'filters'  => [
-        'search' => $search,
-        'order'  => $order,
+      'products'  => $pager,
+      'filters' =>  [
+        'search'  => $search,
+        'order' => $order,
       ],
-      // 等价于 isset($category) ? $category : null
-      'category' => $category ?? null,
-      // 将类目树传给模板
-      //'categoryTree' => $categoryService->getCategoryTree(),
+      'category'  => $category ?? null,
     ]);
   }
 
@@ -106,14 +211,13 @@ class ProductsController extends Controller
       ->get();
 
 
-       
+
     // 最后别忘了注入到模板中
     return view('products.show', [
       'product' => $product,
       'favored' => $favored,
       'reviews' => $reviews
     ]);
-    
   }
 
   // 用户收藏商品

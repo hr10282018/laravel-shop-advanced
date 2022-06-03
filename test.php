@@ -1,11 +1,10 @@
 <?php
 
 
-$a=null;
+$a=[1,2,3];
 
-if(isset($a)){  
-  echo 'yes';
-}
-$a=$a ?: 2;
 
-var_dump( $a);
+$b=join('-',$a);
+
+
+echo $b;
