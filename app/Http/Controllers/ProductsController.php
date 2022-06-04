@@ -86,7 +86,7 @@ class ProductsController extends Controller
   {
     $page = $request->input('page', 1);
     $perPage = 16;
-    dd($request->all());
+    //dd($request->all());
     // 构建查询
     $params = [
       'index' => 'products',
@@ -200,8 +200,10 @@ class ProductsController extends Controller
             // 指明 nested 字段
             'path'  =>  'properties',
             'query' => [
-              ['term' => ['properties.name' => $name]],
-              ['term' => ['properties.value' => $value]],
+              // ['term' => ['properties.name' => $name]],
+              // ['term' => ['properties.value' => $value]],
+              // 将原来的两个 term 查询改成一个
+              ['term' => ['properties.search_value' => $filter]],
             ],
           ],
         ];
