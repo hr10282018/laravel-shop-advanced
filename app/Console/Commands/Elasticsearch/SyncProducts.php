@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 class SyncProducts extends Command
 {
 
-  protected $signature = 'es:sync-products';
+  protected $signature = 'es:sync-products {--index=products}'; // 输入索引名
 
 
   protected $description = '商品数据同步到 Elasticsearch';
@@ -39,7 +39,7 @@ class SyncProducts extends Command
           $data = $product->toESArray();
           $req['body'][] = [
             'index' => [
-              '_index' => 'products',
+              '_index' => $this->option('index'),     // 从参数中读取索引名
               '_id'    => $data['id'],
             //'_type'  => '_doc', // 加上这行
             ],

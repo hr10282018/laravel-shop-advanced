@@ -75,7 +75,7 @@ class Product extends Model
     ]);
 
     // 如果商品有类目，则 category 字段为类目名数组，否则为空字符串
-    
+
     $arr['category'] = $this->category ? explode('-', $this->category->full_name) : '';
 
     // 类目的 path 字段
@@ -90,15 +90,20 @@ class Product extends Model
     $arr['properties'] = $this->properties->map(function (ProductProperty $property) {
 
       // 对应增加一个 search_value 字段，用符号将属性名和属性值拼接起来
-      return array_merge(Arr::only($property->toArray(), ['name', 'value']),[
-        'search_value'  => $property->name.':'.$property->value,
+      return array_merge(Arr::only($property->toArray(), ['name', 'value']), [
+        'search_value'  => $property->name . ':' . $property->value,
       ]);
     });
 
     return $arr;
   }
 
-
+  // in 查询商品，并要求保持数据的顺序取出
+  public function scopeByIds($query, $ids)  // scope-本地作用域允许定义通用的约束集合以便在应用程序中重复使用
+  {
+    return $query->whereIn('id', $ids)
+    ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $ids)));  
+  }
 
 
   // 商品-SKU

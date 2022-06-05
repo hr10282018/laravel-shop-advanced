@@ -1,10 +1,22 @@
 <?php
 
+namespace App\Console\Commands\Elasticsearch;
+class A{
 
-$a=[1,2,3];
+}
+$indices = [test\B::class];
 
+echo $indices[0];
 
-$b=join('-',$a);
+foreach($indices as $value){
+  echo ($value::echo());
+}
+//var_dump($indices);
 
-
-echo $b;
+namespace App\Console\Commands\Elasticsearch\test;
+class B{
+  public static function echo()
+  {
+    return 'B类';
+  }
+}

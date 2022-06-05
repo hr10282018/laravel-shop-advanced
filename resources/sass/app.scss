@@ -78,7 +78,8 @@ body {
   top: 40%;
 }
 
-.dropdown-submenu:hover > .dropdown-menu, .dropdown-submenu:focus > .dropdown-menu {
+.dropdown-submenu:hover>.dropdown-menu,
+.dropdown-submenu:focus>.dropdown-menu {
   display: flex;
   flex-direction: column;
   position: absolute !important;
@@ -90,95 +91,14 @@ body {
   .dropdown-menu {
     width: 50%;
   }
+
   .dropdown-menu .dropdown-submenu {
     width: auto;
   }
 }
 
-
-
-// 商品列表、用户收藏商品列表
-.products-index-page,
-.products-favorites-page {
-  .pagination {
-    margin-right: 5px;
-  }
-
-  // 替换原有的 .search-form
-  .search-form {
-    padding: 0 5px 10px;
-
-    .category-breadcrumb {
-      line-height: 28px;
-    }
-
-    .all-products {
-      font-size: 12px;
-      color: #666;
-      text-decoration: none;
-    }
-
-    .category {
-      font-size: 12px;
-      height: 22px;
-      border: 1px solid #eee;
-      padding: 4px;
-      color: #666;
-
-      a {
-        text-decoration: none;
-        color: #666;
-      }
-    }
-
-    // 属性面包屑
-    .filter {
-      border: 1px red solid;
-      font-size: 12px;
-      padding: 2px 0 2px 2px;
-      .filter-value {
-        color: red;
-      }
-      .remove-filter {
-        text-decoration: none;
-        color: white;
-        font-weight: bold;
-        background: red;
-        padding: 2px;
-      }
-    }
-  }
-
-  .filters {
-    font-size: 12px;
-    margin-bottom: 10px;
-
-    &>.row {
-      border-top: 1px solid #eee;
-      border-bottom: 1px solid #eee;
-      margin: 0 -20px;
-
-      .filter-key {
-        width: 150px;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        background: #f3f3f3;
-        color: #666;
-      }
-
-      .filter-values {
-        padding-top: 5px;
-        padding-bottom: 5px;
-
-        a {
-          margin-right: 50px;
-          color: #666;
-          text-decoration: none;
-        }
-      }
-    }
-  }
-
+// @mixin 混入，表示公共样式，可用include引入
+@mixin product-list {
   .products-list {
     padding: 0 15px;
 
@@ -250,6 +170,100 @@ body {
     }
   }
 }
+
+// 商品列表、用户收藏商品列表
+.products-index-page,
+.products-favorites-page {
+  .pagination {
+    margin-right: 5px;
+  }
+
+  // @include 引用一段样式
+  @include product-list;
+
+
+  // 替换原有的 .search-form
+  .search-form {
+    padding: 0 5px 10px;
+
+    .category-breadcrumb {
+      line-height: 28px;
+    }
+
+    .all-products {
+      font-size: 12px;
+      color: #666;
+      text-decoration: none;
+    }
+
+    .category {
+      font-size: 12px;
+      height: 22px;
+      border: 1px solid #eee;
+      padding: 4px;
+      color: #666;
+
+      a {
+        text-decoration: none;
+        color: #666;
+      }
+    }
+
+    // 属性面包屑
+    .filter {
+      border: 1px red solid;
+      font-size: 12px;
+      padding: 2px 0 2px 2px;
+
+      .filter-value {
+        color: red;
+      }
+
+      .remove-filter {
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        background: red;
+        padding: 2px;
+      }
+    }
+  }
+
+  .filters {
+    font-size: 12px;
+    margin-bottom: 10px;
+
+    &>.row {
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      margin: 0 -20px;
+
+      .filter-key {
+        width: 150px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        background: #f3f3f3;
+        color: #666;
+      }
+
+      .filter-values {
+        padding-top: 5px;
+        padding-bottom: 5px;
+
+        a {
+          margin-right: 50px;
+          color: #666;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+
+
+
+}
+
+
 
 
 // 商品详情
@@ -401,26 +415,33 @@ body {
   .crowdfunding-info {
     margin-bottom: 20px;
     font-size: 14px;
+
     .have-text {
       font-size: 16px;
     }
+
     .total-amount {
       .symbol {
         font-size: 20px;
       }
+
       font-size: 32px;
     }
+
     .progress {
       height: 10px;
       margin-bottom: 5px;
     }
+
     .progress-info {
       font-weight: 600;
       margin: 10px 0;
     }
+
     .current-progress {
       color: rgb(161, 6, 224);
     }
+
     .text-red {
       color: red;
     }
@@ -430,16 +451,19 @@ body {
   .properties-list {
     border-bottom: 1px solid #e6e6e6;
     margin-bottom: 20px;
+
     .properties-list-title {
       padding: 5px 0;
       color: #999;
       font-weight: 700;
     }
+
     .properties-list-body {
       font-size: 12px;
       padding: 5px 0;
       list-style: none;
       text-indent: 0;
+
       li {
         display: inline-block;
         width: 30%;
@@ -447,8 +471,22 @@ body {
       }
     }
   }
+
   .product-description img {
     max-width: 100%;
+  }
+
+  // 猜你喜欢 商品
+  .similar-products {
+    @include product-list;
+
+    .title {
+      font-weight: normal;
+    }
+
+    .price {
+      background-color: unset;
+    }
   }
 }
 
@@ -768,59 +806,74 @@ body {
 // 分期付款详情
 .installments-show-page {
   font-size: 12px;
+
   .table {
     margin-bottom: 0;
+
     .repaid {
       color: green;
     }
+
     .overdue {
       color: red;
     }
   }
+
   .item-amount {
     padding-right: 20px;
     width: 200px;
   }
+
   .installment-top {
     display: flex;
     flex-direction: row;
     margin-bottom: 20px;
   }
+
   .installment-info {
     width: 50%;
+
     .line {
       display: flex;
       flex-direction: row;
+
       .line-label {
         width: 80px;
         text-align: right;
       }
+
       .line-value {
         padding-left: 20px;
         flex-shrink: 100;
       }
     }
+
     border-right: 1px solid #ddd;
   }
+
   .installment-next {
     width: 50%;
-    font-family: Verdana,Tahoma,Helvetica,Arial;
+    font-family: Verdana, Tahoma, Helvetica, Arial;
+
     .installment-clear {
       font-weight: bolder;
       font-size: 16px;
     }
+
     .total-amount {
       font-weight: bolder;
       font-size: 14px;
     }
+
     .value {
       display: inline-block;
       width: 150px;
       padding-right: 20px;
     }
   }
+
   .payment-buttons {
     margin-top: 10px;
     padding-right: 10px;
   }
-} 
+}
