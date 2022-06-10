@@ -11,10 +11,11 @@ class Product extends Model
 
   const TYPE_NORMAL = 'normal';
   const TYPE_CROWDFUNDING = 'crowdfunding';
-
+  const TYPE_SECKILL = 'seckill';
   public static $typeMap = [
     self::TYPE_NORMAL => '普通商品',
     self::TYPE_CROWDFUNDING => '众筹商品',
+    self::TYPE_SECKILL => '秒杀商品',
   ];
 
   protected $fillable = [
@@ -102,7 +103,7 @@ class Product extends Model
   public function scopeByIds($query, $ids)  // scope-本地作用域允许定义通用的约束集合以便在应用程序中重复使用
   {
     return $query->whereIn('id', $ids)
-    ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $ids)));  
+      ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $ids)));
   }
 
 
@@ -128,5 +129,11 @@ class Product extends Model
   public function properties()
   {
     return $this->hasMany(ProductProperty::class);
+  }
+
+  // 一个商品有一个秒杀
+  public function seckill()
+  {
+    return $this->hasOne(SeckillProduct::class);
   }
 }
