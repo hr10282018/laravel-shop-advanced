@@ -18,7 +18,8 @@ use App\Http\Requests\ApplyRefundRequest; // 图款请求
 use App\Exceptions\CouponCodeUnavailableException;
 use App\Models\CouponCode;
 use App\Http\Requests\CrowdFundingOrderRequest;
-
+use App\Http\Requests\SeckillOrderRequest;
+use App\Models\SeckillProduct;
 
 class OrdersController extends Controller
 {
@@ -215,7 +216,7 @@ class OrdersController extends Controller
     }
 
     // 众筹订单不允许申请退款
-    if($order->type === Order::TYPE_CROWDFUNDING){
+    if ($order->type === Order::TYPE_CROWDFUNDING) {
       throw new InvalidRequestException('众筹订单不支持退款');
     }
 
@@ -236,14 +237,25 @@ class OrdersController extends Controller
   }
 
   // 创建方法用于接受众筹商品下单请求
-  public function crowdfunding(CrowdFundingOrderRequest $request, OrderService $orderService){
+  public function crowdfunding(CrowdFundingOrderRequest $request, OrderService $orderService)
+  {
 
-    $user=$request->user();
-    $sku=ProductSku::find($request->input('sku_id'));
-    $address=UserAddress::find($request->input('address_id'));
+    $user = $request->user();
+    $sku = ProductSku::find($request->input('sku_id'));
+    $address = UserAddress::find($request->input('address_id'));
     //dd($address);
-    $amount=$request->input('amount');
+    $amount = $request->input('amount');
 
     return $orderService->crowdfunding($user, $address, $sku, $amount);
+  }
+
+  // 秒杀商品
+  public function seckill(SeckillOrderRequest $request, OrderService $orderService)
+  {
+    $user    = $request->user();
+    $address = UserAddress::find($request->input('address_id'));
+    $sku     = ProductSku::find($request->input('sku_id'));
+
+    return $orderService->seckill($user, $address, $sku);
   }
 }

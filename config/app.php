@@ -2,6 +2,10 @@
 
 return [
 
+  
+  // 秒杀订单支付时间 10 分钟
+  'seckill_order_ttl' => 600, 
+
   // 分期费率，key 为期数，value 为费率 
   'installment_fee_rate' => [
     3  => 1.5,
@@ -83,8 +87,8 @@ return [
     |
     */
 
-  'timezone' => 'UTC',
-
+  //'timezone' => 'UTC',
+  'timezone' => 'Asia/Shanghai',
   /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

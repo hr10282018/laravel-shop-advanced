@@ -11,7 +11,10 @@ use App\Exceptions\InvalidRequestException;
 use Illuminate\Foundation\Validation\ValidatesRequests; // 使用validate验证输入
 use App\Http\Requests\Admin\HandleRefundRequest;  // 处理用户退款请求
 use App\Exceptions\InternalException;
+use App\Http\Requests\SeckillOrderRequest;
 use App\Models\CrowdfundingProduct;
+use App\Models\ProductSku;
+use App\Models\UserAddress;
 use App\Services\OrderService;
 
 class OrdersController extends AdminController
@@ -79,7 +82,7 @@ class OrdersController extends AdminController
     }
 
     // 众筹订单只有在众筹成功后 发货
-    if($order->type === Order::TYPE_CROWDFUNDING && $order->items[0]->product->crowdfunding->status !== CrowdfundingProduct::STATUS_SUCCESS){
+    if ($order->type === Order::TYPE_CROWDFUNDING && $order->items[0]->product->crowdfunding->status !== CrowdfundingProduct::STATUS_SUCCESS) {
       throw new InvalidRequestException('众筹订单只能在众筹成功之后发货');
     }
 
@@ -104,7 +107,7 @@ class OrdersController extends AdminController
   }
 
   // 处理用户退款
-  public function handleRefund(Order $order, HandleRefundRequest $request,OrderService $orderService)
+  public function handleRefund(Order $order, HandleRefundRequest $request, OrderService $orderService)
   {
     // 判断订单状态是否正确
     if ($order->refund_status !== Order::REFUND_STATUS_APPLIED) {
@@ -183,4 +186,5 @@ class OrdersController extends AdminController
   // }
 
 
+  
 }
