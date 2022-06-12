@@ -431,11 +431,17 @@
         if (!ret) {
           return;
         }
+        // 从地址列表中找出当前用户选择的地址对象
+        var address = _.find(addresses, {id: parseInt(addressSelector.val())});
+        //console.log(address)
         // 构建请求参数
         var req = {
-          address_id: addressSelector.val(),
+          //address_id: addressSelector.val(),
+          // 将地址对象中的字段放入 address 参数
+          address: _.pick(address, ['province','city','district','address','zip','contact_name','contact_phone']),
           sku_id: $('label.active input[name=skus]').val()
         };
+        //console.log(req)
         // 调用秒杀商品下单接口
         axios.post('{{ route('seckill_orders.store') }}', req)
           .then(function (response) {
