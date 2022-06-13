@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 // 用户-登录注册
 Auth::routes(['verify' => true]);
 
+// 处理秒杀商品 80%拒绝
+Route::post('seckill_orders', 'OrdersController@seckill')->name('seckill_orders.store')->middleware('random_drop:80');
 
 // auth中间件代表需要登录，verified中间件代表需要经过邮箱验证
 Route::group(['middleware' => ['auth', 'verified']], function() {
@@ -90,8 +92,7 @@ Route::group(['middleware' => ['auth', 'verified']], function() {
   Route::get('installments/{installment}/alipay', 'InstallmentsController@payByAlipay')->name('installments.alipay');
   Route::get('installments/alipay/return', 'InstallmentsController@alipayReturn')->name('installments.alipay.return');
 
-  // 处理秒杀商品
-  Route::post('seckill_orders', 'OrdersController@seckill')->name('seckill_orders.store');
+  
 });
 
 // 商品列表
